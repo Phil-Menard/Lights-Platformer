@@ -1,23 +1,34 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.Universal;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class Player : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
 	[SerializeField] private InputActionAsset inputActions;
-	[SerializeField] private float speed = 5.0f;
-	[SerializeField] private float jumpForce = 5.0f;
-	[SerializeField] private float jumpHoldDuration = .5f;
 	[SerializeField] private Transform groundCheck;
 	[SerializeField] private LayerMask groundLayer;
 	[SerializeField] private Vector2 groundCheckSize = new Vector2(1, 0.1f);
+	[SerializeField] private List<ColorAbility> abilities;
+	[SerializeField] private Light2D lightPlayer;
+
+
 	private Rigidbody2D rb;
 	private InputAction moveAction;
 	private InputAction jumpAction;
+	private InputAction abilityAction;
 	private Vector2 direction;
+
+
+	private float jumpForce = 5.0f;
+	private float speed = 5.0f;
+	private float jumpHoldDuration = .5f;
 	private float jumpDuration;
 	private bool isJumping = false;
 	private bool isGrounded = true;
+	private int indexAbilities;
+
 
 	void Awake()
 	{
@@ -29,7 +40,10 @@ public class Player : MonoBehaviour
 	{
 		moveAction = InputSystem.actions.FindAction("Move");
 		jumpAction = InputSystem.actions.FindAction("Jump");
+		abilityAction = InputSystem.actions.FindAction("Ability");
 		jumpDuration = jumpHoldDuration;
+		indexAbilities = 0;
+		SetLightPlayerColor();
 	}
 
 	// Update is called once per frame
@@ -38,6 +52,7 @@ public class Player : MonoBehaviour
 		isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
 		direction = moveAction.ReadValue<Vector2>();
 		JumpInput();
+		ChangeAbility();
 	}
 
 	void FixedUpdate()
@@ -65,6 +80,15 @@ public class Player : MonoBehaviour
 			jumpHoldDuration -= Time.deltaTime;
 	}
 
+	void ChangeAbility()
+	{
+		if (abilityAction.WasPressedThisFrame())
+		{
+			indexAbilities = (indexAbilities + 1) % abilities.Count;
+			SetLightPlayerColor();
+		}
+	}
+
 	void OnDrawGizmos()
 	{
 		if (groundCheck == null)
@@ -72,5 +96,10 @@ public class Player : MonoBehaviour
 
 		Gizmos.color = Color.green;
 		Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
+	}
+
+	void SetLightPlayerColor()
+	{
+		lightPlayer.color = abilities[indexAbilities].color;
 	}
 }

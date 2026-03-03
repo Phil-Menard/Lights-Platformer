@@ -225,7 +225,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 8
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -388,7 +388,7 @@ MonoBehaviour:
   m_LightType: 3
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 0.466
-  m_Color: {r: 0.22745098, g: 0.8392157, b: 0.5697087, a: 1}
+  m_Color: {r: 0.09732112, g: 0.764151, b: 0.47361675, a: 1}
   m_Intensity: 8.28
   m_LightVolumeIntensity: 0.03
   m_LightVolumeEnabled: 1
@@ -597,6 +597,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   groundCheckSize: {x: 1, y: 0.1}
+  abilities:
+  - {fileID: 11400000, guid: dda9ef54f63301543babbd47d577af29, type: 2}
+  - {fileID: 11400000, guid: 86ae97223c533804e9714cda75330351, type: 2}
+  lightPlayer: {fileID: 1066522851}
 --- !u!4 &1150435611
 Transform:
   m_ObjectHideFlags: 0
@@ -777,8 +781,8 @@ Transform:
   m_GameObject: {fileID: 2075474533}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.0138, y: -1, z: 0}
-  m_LocalScale: {x: 28.444515, y: 1, z: 1}
+  m_LocalPosition: {x: 0.0335, y: -1, z: 0}
+  m_LocalScale: {x: 35.504173, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
