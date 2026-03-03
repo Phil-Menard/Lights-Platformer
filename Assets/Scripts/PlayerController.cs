@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -18,6 +19,7 @@ public class PlayerController : MonoBehaviour
 	private InputAction moveAction;
 	private InputAction jumpAction;
 	private InputAction abilityAction;
+	private InputAction pulseAction;
 	private Vector2 direction;
 
 
@@ -28,8 +30,9 @@ public class PlayerController : MonoBehaviour
 	private bool isJumping = false;
 	private bool isGrounded = true;
 	private int indexAbilities;
-	[SerializeField] private int jumpCount;
-	[SerializeField] private int maxJump;
+	private int jumpCount;
+	private int maxJump;
+	private bool canPulse;
 
 
 	void Awake()
@@ -43,10 +46,13 @@ public class PlayerController : MonoBehaviour
 		moveAction = InputSystem.actions.FindAction("Move");
 		jumpAction = InputSystem.actions.FindAction("Jump");
 		abilityAction = InputSystem.actions.FindAction("Ability");
+		pulseAction = InputSystem.actions.FindAction("Pulse");
+
 		jumpDuration = jumpHoldDuration;
 		indexAbilities = 0;
 		jumpCount = 0;
 		maxJump = 1;
+		canPulse = false;
 		SetLightPlayerColor();
 		abilities[indexAbilities].Activate(this);
 	}
@@ -59,8 +65,9 @@ public class PlayerController : MonoBehaviour
 			jumpCount = 0;
 
 		direction = moveAction.ReadValue<Vector2>();
-		JumpInput();
 		ChangeAbility();
+		JumpInput();
+		CheckPulse();
 	}
 
 	void FixedUpdate()
@@ -87,6 +94,15 @@ public class PlayerController : MonoBehaviour
 
 		if (isJumping)
 			jumpHoldDuration -= Time.deltaTime;
+	}
+
+	void CheckPulse()
+	{
+		if (pulseAction.WasPressedThisFrame() && canPulse)
+		{
+			int currentIndexAbility = indexAbilities;
+			Pulse(currentIndexAbility);
+		}
 	}
 
 	void ChangeAbility()
@@ -122,5 +138,56 @@ public class PlayerController : MonoBehaviour
 	public void DisableDoubleJump()
 	{
 		maxJump = 1;
+	}
+
+	public void EnablePulse()
+	{
+		canPulse = true;
+	}
+
+	public void DisablePulse()
+	{
+		canPulse = false;
+	}
+
+	public void Pulse(int currentIndexAbility)
+	{
+		canPulse = false;
+		StartCoroutine(PulseLight(currentIndexAbility));
+	}
+
+	IEnumerator PulseLight(int currentIndexAbility)
+	{
+		float startRadius = lightPlayer.pointLightOuterRadius;
+		float targetRadius = 18f;
+
+		//Increase
+		float durationUp = 0.5f;
+		float time = 0f;
+		while (time < durationUp)
+		{
+			lightPlayer.pointLightOuterRadius = Mathf.SmoothStep(startRadius, targetRadius, time / durationUp);
+			time += Time.deltaTime;
+			yield return null;
+		}
+		lightPlayer.pointLightOuterRadius = targetRadius;
+
+		//Hold
+		yield return new WaitForSeconds(1.5f);
+
+		//Decrease
+		float durationDown = 0.5f;
+		time = 0f;
+		while (time < durationDown)
+		{
+			lightPlayer.pointLightOuterRadius = Mathf.SmoothStep(targetRadius, startRadius, time / durationDown);
+			time += Time.deltaTime;
+			yield return null;
+		}
+		lightPlayer.pointLightOuterRadius = startRadius;
+
+		yield return new WaitForSeconds(1f);
+		if (indexAbilities == currentIndexAbility)
+			canPulse = true;
 	}
 }

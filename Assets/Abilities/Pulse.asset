@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d9889e57a427404a8f01c96d2e0e807, type: 3}
-  m_Name: Enlighten
+  m_Name: Pulse
   m_EditorClassIdentifier: Assembly-CSharp::EnlightenAbility
   color: {r: 0.85882354, g: 0.8235294, b: 0.44313726, a: 1}
   abilityName: Enlighten
