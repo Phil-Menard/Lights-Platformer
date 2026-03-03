@@ -1,7 +1,9 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Scriptable Objects/Color Abilities")]
-public class ColorAbility : ScriptableObject
+public abstract class ColorAbility : ScriptableObject
 {
 	public Color color;
+
+	public abstract void Activate(PlayerController player);
+	public abstract void Desactivate(PlayerController player);
 }

@@ -28,6 +28,8 @@ public class PlayerController : MonoBehaviour
 	private bool isJumping = false;
 	private bool isGrounded = true;
 	private int indexAbilities;
+	[SerializeField] private int jumpCount;
+	[SerializeField] private int maxJump;
 
 
 	void Awake()
@@ -43,13 +45,19 @@ public class PlayerController : MonoBehaviour
 		abilityAction = InputSystem.actions.FindAction("Ability");
 		jumpDuration = jumpHoldDuration;
 		indexAbilities = 0;
+		jumpCount = 0;
+		maxJump = 1;
 		SetLightPlayerColor();
+		abilities[indexAbilities].Activate(this);
 	}
 
 	// Update is called once per frame
 	void Update()
 	{
 		isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
+		if (isGrounded && !isJumping)
+			jumpCount = 0;
+
 		direction = moveAction.ReadValue<Vector2>();
 		JumpInput();
 		ChangeAbility();
@@ -60,15 +68,16 @@ public class PlayerController : MonoBehaviour
 		rb.linearVelocity = new Vector2(direction.x * speed, rb.linearVelocityY);
 
 		if (isJumping)
-		{
 			rb.linearVelocity = new Vector2(rb.linearVelocityX, jumpForce);
-		}
 	}
 
 	void JumpInput()
 	{
-		if (jumpAction.WasPressedThisFrame() && isGrounded)
+		if (jumpAction.WasPressedThisFrame() && (isGrounded || jumpCount < maxJump))
+		{
 			isJumping = true;
+			jumpCount++;
+		}
 
 		if (jumpAction.WasReleasedThisFrame() || jumpHoldDuration <= 0)
 		{
@@ -84,8 +93,10 @@ public class PlayerController : MonoBehaviour
 	{
 		if (abilityAction.WasPressedThisFrame())
 		{
+			abilities[indexAbilities].Desactivate(this);
 			indexAbilities = (indexAbilities + 1) % abilities.Count;
 			SetLightPlayerColor();
+			abilities[indexAbilities].Activate(this);
 		}
 	}
 
@@ -101,5 +112,15 @@ public class PlayerController : MonoBehaviour
 	void SetLightPlayerColor()
 	{
 		lightPlayer.color = abilities[indexAbilities].color;
+	}
+
+	public void EnableDoubleJump()
+	{
+		maxJump = 2;
+	}
+
+	public void DisableDoubleJump()
+	{
+		maxJump = 1;
 	}
 }

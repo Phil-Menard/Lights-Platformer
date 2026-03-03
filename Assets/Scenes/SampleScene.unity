@@ -589,18 +589,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
-  speed: 6.5
-  jumpForce: 5
-  jumpHoldDuration: 0.4
   groundCheck: {fileID: 1869172181}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
   groundCheckSize: {x: 1, y: 0.1}
   abilities:
-  - {fileID: 11400000, guid: dda9ef54f63301543babbd47d577af29, type: 2}
-  - {fileID: 11400000, guid: 86ae97223c533804e9714cda75330351, type: 2}
+  - {fileID: 11400000, guid: a315911bfde4d5140b72f8de1a7e7e9c, type: 2}
+  - {fileID: 11400000, guid: bfaef36e9baeeea4ea8df892269c6b19, type: 2}
   lightPlayer: {fileID: 1066522851}
+  maxJump: 0
 --- !u!4 &1150435611
 Transform:
   m_ObjectHideFlags: 0
