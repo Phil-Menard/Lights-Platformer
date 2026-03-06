@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour
 	private int jumpCount;
 	private int maxJump;
 	private bool canPulse;
+	private float gravity = -9.81f;
 
 
 	void Awake()
@@ -94,6 +95,14 @@ public class PlayerController : MonoBehaviour
 
 		if (isJumping)
 			jumpHoldDuration -= Time.deltaTime;
+		else
+		{
+			if (jumpAction.IsPressed() && !isGrounded)
+				Physics2D.gravity = new Vector2(0, gravity / 2.5f);
+			else
+				Physics2D.gravity = new Vector2(0, gravity);
+			Debug.Log(Physics2D.gravity);
+		}
 	}
 
 	void CheckPulse()
