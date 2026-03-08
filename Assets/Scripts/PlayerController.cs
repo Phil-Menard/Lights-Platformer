@@ -13,13 +13,14 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private Vector2 groundCheckSize = new Vector2(1, 0.1f);
 	[SerializeField] private List<ColorAbility> abilities;
 	[SerializeField] private Light2D lightPlayer;
-
+	[SerializeField] private List<PhysicsMaterial2D> pMaterials;
 
 	private Rigidbody2D rb;
 	private InputAction moveAction;
 	private InputAction jumpAction;
 	private InputAction abilityAction;
 	private InputAction pulseAction;
+	private InputAction bounceAction;
 	private Vector2 direction;
 
 
@@ -33,7 +34,13 @@ public class PlayerController : MonoBehaviour
 	private int jumpCount;
 	private int maxJump;
 	private bool canPulse;
-	private float gravity = -9.81f;
+	private bool canBounce;
+
+	private enum physicsMaterials
+	{
+		noFriction,
+		bounce
+	}
 
 
 	void Awake()
@@ -48,12 +55,14 @@ public class PlayerController : MonoBehaviour
 		jumpAction = InputSystem.actions.FindAction("Jump");
 		abilityAction = InputSystem.actions.FindAction("Ability");
 		pulseAction = InputSystem.actions.FindAction("Pulse");
+		bounceAction = InputSystem.actions.FindAction("Bounce");
 
 		jumpDuration = jumpHoldDuration;
 		indexAbilities = 0;
 		jumpCount = 0;
 		maxJump = 1;
 		canPulse = false;
+		canBounce = false;
 		SetLightPlayerColor();
 		abilities[indexAbilities].Activate(this);
 	}
@@ -68,7 +77,8 @@ public class PlayerController : MonoBehaviour
 		direction = moveAction.ReadValue<Vector2>();
 		ChangeAbility();
 		JumpInput();
-		CheckPulse();
+		PulseInput();
+		BounceInput();
 	}
 
 	void FixedUpdate()
@@ -98,20 +108,27 @@ public class PlayerController : MonoBehaviour
 		else
 		{
 			if (jumpAction.IsPressed() && !isGrounded)
-				Physics2D.gravity = new Vector2(0, gravity / 2.5f);
+				rb.gravityScale = 0.5f;
 			else
-				Physics2D.gravity = new Vector2(0, gravity);
-			Debug.Log(Physics2D.gravity);
+				rb.gravityScale = 1;
 		}
 	}
 
-	void CheckPulse()
+	void PulseInput()
 	{
 		if (pulseAction.WasPressedThisFrame() && canPulse)
 		{
 			int currentIndexAbility = indexAbilities;
 			Pulse(currentIndexAbility);
 		}
+	}
+
+	void BounceInput()
+	{
+		if (bounceAction.IsPressed() && canBounce)
+			rb.sharedMaterial = pMaterials[(int)physicsMaterials.bounce];
+		else
+			rb.sharedMaterial = pMaterials[(int)physicsMaterials.noFriction];
 	}
 
 	void ChangeAbility()
@@ -147,6 +164,16 @@ public class PlayerController : MonoBehaviour
 	public void DisableDoubleJump()
 	{
 		maxJump = 1;
+	}
+
+	public void EnableBounce()
+	{
+		canBounce = true;
+	}
+
+	public void DisableBounce()
+	{
+		canBounce = false;
 	}
 
 	public void EnablePulse()
