@@ -129,7 +129,7 @@ public class PlayerController : MonoBehaviour
 			jumpHoldDuration -= Time.deltaTime;
 		else
 		{
-			if (jumpAction.IsPressed() && !isGrounded)
+			if ((jumpAction.IsPressed() || isBouncing) && !isGrounded)
 				rb.gravityScale = 0.5f;
 			else
 				rb.gravityScale = 1;
