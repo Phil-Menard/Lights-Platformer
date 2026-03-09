@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private List<ColorAbility> abilities;
 	[SerializeField] private Light2D lightPlayer;
 	[SerializeField] private List<PhysicsMaterial2D> pMaterials;
+	[SerializeField] private GameObject[] platformsA;
+	[SerializeField] private GameObject[] platformsB;
 
 	private Rigidbody2D rb;
 	private InputAction moveAction;
@@ -21,6 +23,7 @@ public class PlayerController : MonoBehaviour
 	private InputAction abilityAction;
 	private InputAction pulseAction;
 	private InputAction bounceAction;
+	private InputAction switchAction;
 	private Vector2 direction;
 
 
@@ -31,11 +34,13 @@ public class PlayerController : MonoBehaviour
 	private bool isJumping = false;
 	private bool isGrounded = true;
 	private int indexAbilities;
-	private int jumpCount;
+	[SerializeField] private int jumpCount;
 	private int maxJump;
 	private bool canPulse;
 	private bool canBounce;
-
+	private bool isBouncing;
+	private bool canSwitch;
+	private bool isPlatformsAEnabled;
 	private enum physicsMaterials
 	{
 		noFriction,
@@ -56,6 +61,7 @@ public class PlayerController : MonoBehaviour
 		abilityAction = InputSystem.actions.FindAction("Ability");
 		pulseAction = InputSystem.actions.FindAction("Pulse");
 		bounceAction = InputSystem.actions.FindAction("Bounce");
+		switchAction = InputSystem.actions.FindAction("Switch");
 
 		jumpDuration = jumpHoldDuration;
 		indexAbilities = 0;
@@ -63,8 +69,18 @@ public class PlayerController : MonoBehaviour
 		maxJump = 1;
 		canPulse = false;
 		canBounce = false;
+		isBouncing = false;
+		canSwitch = false;
+		isPlatformsAEnabled = true;
 		SetLightPlayerColor();
 		abilities[indexAbilities].Activate(this);
+
+		platformsA = GameObject.FindGameObjectsWithTag("PlatformA");
+		platformsB = GameObject.FindGameObjectsWithTag("PlatformB");
+		foreach (GameObject platform in platformsB)
+		{
+			platform.SetActive(false);
+		}
 	}
 
 	// Update is called once per frame
@@ -72,13 +88,19 @@ public class PlayerController : MonoBehaviour
 	{
 		isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
 		if (isGrounded && !isJumping)
-			jumpCount = 0;
+		{
+			if (isBouncing && jumpCount > 0)
+				jumpCount = 1;
+			else
+				jumpCount = 0;
+		}
 
 		direction = moveAction.ReadValue<Vector2>();
 		ChangeAbility();
 		JumpInput();
 		PulseInput();
 		BounceInput();
+		SwitchInput();
 	}
 
 	void FixedUpdate()
@@ -126,9 +148,32 @@ public class PlayerController : MonoBehaviour
 	void BounceInput()
 	{
 		if (bounceAction.IsPressed() && canBounce)
+		{
 			rb.sharedMaterial = pMaterials[(int)physicsMaterials.bounce];
+			isBouncing = true;
+		}
 		else
+		{
 			rb.sharedMaterial = pMaterials[(int)physicsMaterials.noFriction];
+			isBouncing = false;
+		}
+	}
+
+	void SwitchInput()
+	{
+		if (switchAction.WasPressedThisFrame() && canSwitch)
+		{
+			isPlatformsAEnabled = !isPlatformsAEnabled;
+
+			foreach (GameObject platform in platformsA)
+			{
+				platform.SetActive(isPlatformsAEnabled);
+			}
+			foreach (GameObject platform in platformsB)
+			{
+				platform.SetActive(!isPlatformsAEnabled);
+			}
+		}
 	}
 
 	void ChangeAbility()
@@ -184,6 +229,16 @@ public class PlayerController : MonoBehaviour
 	public void DisablePulse()
 	{
 		canPulse = false;
+	}
+
+	public void EnableSwitch()
+	{
+		canSwitch = true;
+	}
+
+	public void DisableSwitch()
+	{
+		canSwitch = false;
 	}
 
 	public void Pulse(int currentIndexAbility)
