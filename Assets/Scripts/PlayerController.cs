@@ -14,9 +14,9 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private Vector2 groundCheckSizeX = new Vector2(0.1f, 1);
 	[SerializeField] private List<Color32> abilitiesColors;
 	[SerializeField] private Light2D lightPlayer;
-	[SerializeField] private List<PhysicsMaterial2D> pMaterials;
 	[SerializeField] private GameObject[] platformsA;
 	[SerializeField] private GameObject[] platformsB;
+	[SerializeField] private float bouncingSpeed = 500.0f;
 
 	private Rigidbody2D rb;
 	private InputAction moveAction;
@@ -28,22 +28,17 @@ public class PlayerController : MonoBehaviour
 
 
 	private float jumpForce = 5.0f;
-	private float speed = 5.0f;
+	[SerializeField] private float speed = 5.0f;
 	private float jumpHoldDuration = .5f;
 	private float jumpDuration;
 	private bool isJumping = false;
 	private bool isGrounded = true;
 	private int jumpCount;
 	private int maxJump;
-	private bool isBouncing;
 	private bool isPlatformsAEnabled;
 	private bool isGravityFlipped;
-
-	private enum physicsMaterials
-	{
-		noFriction,
-		bounce
-	}
+	private bool isBouncing;
+	private bool propulse;
 
 	private enum colors
 	{
@@ -70,10 +65,12 @@ public class PlayerController : MonoBehaviour
 
 		jumpDuration = jumpHoldDuration;
 		jumpCount = 0;
-		maxJump = 2;
-		isBouncing = false;
+		maxJump = 1;
 		isPlatformsAEnabled = true;
 		isGravityFlipped = false;
+		isBouncing = false;
+		propulse = false;
+		
 		SetLightPlayerColor((int)colors.doubleJump);
 
 		platformsA = GameObject.FindGameObjectsWithTag("PlatformA");
@@ -93,10 +90,9 @@ public class PlayerController : MonoBehaviour
 			isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSizeX, 0f, groundLayer);
 		if (isGrounded && !isJumping)
 		{
-			if (isBouncing && jumpCount > 0)
-				jumpCount = 1;
-			else
-				jumpCount = 0;
+			jumpCount = 0;
+			if (isBouncing && !propulse)
+				propulse = true;
 		}
 
 		direction = moveAction.ReadValue<Vector2>();
@@ -122,6 +118,12 @@ public class PlayerController : MonoBehaviour
 			if (isJumping)
 				rb.linearVelocity = new Vector2(-jumpForce, rb.linearVelocityY);
 		}
+
+		if (propulse)
+		{
+			rb.linearVelocity = new Vector2(rb.linearVelocityX, bouncingSpeed);
+			propulse = false;
+		}
 	}
 
 	void JumpInput()
@@ -141,26 +143,20 @@ public class PlayerController : MonoBehaviour
 
 		if (isJumping)
 			jumpHoldDuration -= Time.deltaTime;
-		// else
-		// {
-		// 	if ((jumpAction.IsPressed() || isBouncing) && !isGrounded)
-		// 		rb.gravityScale = 0.5f;
-		// 	else
-		// 		rb.gravityScale = 1;
-		// }
 	}
 
 	void BounceInput()
 	{
-		if (bounceAction.IsPressed())
+		if (bounceAction.WasPressedThisFrame() && !isGrounded)
 		{
 			SetLightPlayerColor((int)colors.bounce);
-			rb.sharedMaterial = pMaterials[(int)physicsMaterials.bounce];
 			isBouncing = true;
 		}
-		else
+		
+		if (bounceAction.WasReleasedThisFrame())
 		{
-			rb.sharedMaterial = pMaterials[(int)physicsMaterials.noFriction];
+			if (bounceAction.WasReleasedThisFrame())
+				SetLightPlayerColor((int)colors.doubleJump);
 			isBouncing = false;
 		}
 	}
