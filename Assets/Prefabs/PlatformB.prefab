@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 1294381564151848023}
   - component: {fileID: 6637006571394626457}
   m_Layer: 3
-  m_Name: Real
+  m_Name: RealB
   m_TagString: PlatformB
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -182,7 +182,7 @@ GameObject:
   - component: {fileID: 5247503231580546778}
   - component: {fileID: 4178418833974799907}
   m_Layer: 0
-  m_Name: Illusion
+  m_Name: IllusionB
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

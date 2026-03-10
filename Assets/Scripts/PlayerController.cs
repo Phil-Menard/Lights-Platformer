@@ -10,7 +10,8 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private InputActionAsset inputActions;
 	[SerializeField] private Transform groundCheck;
 	[SerializeField] private LayerMask groundLayer;
-	[SerializeField] private Vector2 groundCheckSize = new Vector2(1, 0.1f);
+	[SerializeField] private Vector2 groundCheckSizeY = new Vector2(1, 0.1f);
+	[SerializeField] private Vector2 groundCheckSizeX = new Vector2(0.1f, 1);
 	[SerializeField] private List<ColorAbility> abilities;
 	[SerializeField] private Light2D lightPlayer;
 	[SerializeField] private List<PhysicsMaterial2D> pMaterials;
@@ -22,6 +23,7 @@ public class PlayerController : MonoBehaviour
 	private InputAction jumpAction;
 	private InputAction bounceAction;
 	private InputAction switchAction;
+	private InputAction gravityAction;
 	private Vector2 direction;
 
 
@@ -30,11 +32,13 @@ public class PlayerController : MonoBehaviour
 	private float jumpHoldDuration = .5f;
 	private float jumpDuration;
 	private bool isJumping = false;
-	private bool isGrounded = true;
+	[SerializeField] private bool isGrounded = true;
 	private int jumpCount;
 	private int maxJump;
 	private bool isBouncing;
 	private bool isPlatformsAEnabled;
+	private bool isGravityFlipped;
+
 	private enum physicsMaterials
 	{
 		noFriction,
@@ -61,12 +65,14 @@ public class PlayerController : MonoBehaviour
 		jumpAction = InputSystem.actions.FindAction("Jump");
 		bounceAction = InputSystem.actions.FindAction("Bounce");
 		switchAction = InputSystem.actions.FindAction("Switch");
+		gravityAction = InputSystem.actions.FindAction("Gravity");
 
 		jumpDuration = jumpHoldDuration;
 		jumpCount = 0;
 		maxJump = 2;
 		isBouncing = false;
 		isPlatformsAEnabled = true;
+		isGravityFlipped = false;
 		SetLightPlayerColor((int)ability.doubleJump);
 
 		platformsA = GameObject.FindGameObjectsWithTag("PlatformA");
@@ -80,7 +86,10 @@ public class PlayerController : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
+		if (!isGravityFlipped)
+			isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSizeY, 0f, groundLayer);
+		else
+			isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSizeX, 0f, groundLayer);
 		if (isGrounded && !isJumping)
 		{
 			if (isBouncing && jumpCount > 0)
@@ -93,14 +102,25 @@ public class PlayerController : MonoBehaviour
 		JumpInput();
 		BounceInput();
 		SwitchInput();
+		GravityInput();
 	}
 
 	void FixedUpdate()
 	{
-		rb.linearVelocity = new Vector2(direction.x * speed, rb.linearVelocityY);
+		if (!isGravityFlipped)
+		{
+			rb.linearVelocity = new Vector2(direction.x * speed, rb.linearVelocityY);
 
-		if (isJumping)
-			rb.linearVelocity = new Vector2(rb.linearVelocityX, jumpForce);
+			if (isJumping)
+				rb.linearVelocity = new Vector2(rb.linearVelocityX, jumpForce);
+		}
+		else
+		{
+			rb.linearVelocity = new Vector2(rb.linearVelocityX, direction.x * speed);
+
+			if (isJumping)
+				rb.linearVelocity = new Vector2(-jumpForce, rb.linearVelocityY);
+		}
 	}
 
 	void JumpInput()
@@ -120,13 +140,13 @@ public class PlayerController : MonoBehaviour
 
 		if (isJumping)
 			jumpHoldDuration -= Time.deltaTime;
-		else
-		{
-			if ((jumpAction.IsPressed() || isBouncing) && !isGrounded)
-				rb.gravityScale = 0.5f;
-			else
-				rb.gravityScale = 1;
-		}
+		// else
+		// {
+		// 	if ((jumpAction.IsPressed() || isBouncing) && !isGrounded)
+		// 		rb.gravityScale = 0.5f;
+		// 	else
+		// 		rb.gravityScale = 1;
+		// }
 	}
 
 	void BounceInput()
@@ -162,13 +182,34 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
+	void GravityInput()
+	{
+		if (gravityAction.WasPressedThisFrame())
+		{
+			isGravityFlipped = !isGravityFlipped;
+			if (isGravityFlipped)
+			{
+				Physics2D.gravity = new Vector2(9.81f, 0);
+				gameObject.transform.Rotate(new Vector3(0, 0, 90));
+			}
+			else
+			{
+				Physics2D.gravity = new Vector2(0, -9.81f);
+				gameObject.transform.Rotate(new Vector3(0, 0, -90));
+			}
+		}
+	}
+
 	void OnDrawGizmos()
 	{
 		if (groundCheck == null)
 			return;
 
 		Gizmos.color = Color.green;
-		Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
+		Gizmos.DrawWireCube(groundCheck.position, groundCheckSizeY);
+
+		Gizmos.color = Color.blue;
+		Gizmos.DrawWireCube(groundCheck.position, groundCheckSizeX);
 	}
 
 	void SetLightPlayerColor(int index)
