@@ -89,7 +89,6 @@ MonoBehaviour:
   groundCheckSizeX: {x: 0.1, y: 1}
   abilities:
   - {fileID: 11400000, guid: a315911bfde4d5140b72f8de1a7e7e9c, type: 2}
-  - {fileID: 11400000, guid: bfaef36e9baeeea4ea8df892269c6b19, type: 2}
   - {fileID: 11400000, guid: f9b648058bf1c3947a9281129217b613, type: 2}
   - {fileID: 11400000, guid: baf2ae36c715bb04d9aa179129aee093, type: 2}
   lightPlayer: {fileID: 2897646132227431772}
@@ -98,6 +97,7 @@ MonoBehaviour:
   - {fileID: 6200000, guid: efe67fead2c980a47bdca3733dd533b4, type: 2}
   platformsA: []
   platformsB: []
+  isGrounded: 1
 --- !u!212 &4985103609234742829
 SpriteRenderer:
   serializedVersion: 2

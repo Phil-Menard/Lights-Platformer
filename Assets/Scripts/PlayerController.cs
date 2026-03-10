@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private LayerMask groundLayer;
 	[SerializeField] private Vector2 groundCheckSizeY = new Vector2(1, 0.1f);
 	[SerializeField] private Vector2 groundCheckSizeX = new Vector2(0.1f, 1);
-	[SerializeField] private List<ColorAbility> abilities;
+	[SerializeField] private List<Color32> abilitiesColors;
 	[SerializeField] private Light2D lightPlayer;
 	[SerializeField] private List<PhysicsMaterial2D> pMaterials;
 	[SerializeField] private GameObject[] platformsA;
@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
 	private float jumpHoldDuration = .5f;
 	private float jumpDuration;
 	private bool isJumping = false;
-	[SerializeField] private bool isGrounded = true;
+	private bool isGrounded = true;
 	private int jumpCount;
 	private int maxJump;
 	private bool isBouncing;
@@ -45,11 +45,12 @@ public class PlayerController : MonoBehaviour
 		bounce
 	}
 
-	private enum ability
+	private enum colors
 	{
 		doubleJump,
 		bounce,
-		switchPlatform
+		switchPlatform,
+		gravity
 	}
 
 
@@ -73,7 +74,7 @@ public class PlayerController : MonoBehaviour
 		isBouncing = false;
 		isPlatformsAEnabled = true;
 		isGravityFlipped = false;
-		SetLightPlayerColor((int)ability.doubleJump);
+		SetLightPlayerColor((int)colors.doubleJump);
 
 		platformsA = GameObject.FindGameObjectsWithTag("PlatformA");
 		platformsB = GameObject.FindGameObjectsWithTag("PlatformB");
@@ -128,7 +129,7 @@ public class PlayerController : MonoBehaviour
 		if (jumpAction.WasPressedThisFrame() && (isGrounded || jumpCount < maxJump))
 		{
 			isJumping = true;
-			SetLightPlayerColor((int)ability.doubleJump);
+			SetLightPlayerColor((int)colors.doubleJump);
 			jumpCount++;
 		}
 
@@ -153,7 +154,7 @@ public class PlayerController : MonoBehaviour
 	{
 		if (bounceAction.IsPressed())
 		{
-			SetLightPlayerColor((int)ability.bounce);
+			SetLightPlayerColor((int)colors.bounce);
 			rb.sharedMaterial = pMaterials[(int)physicsMaterials.bounce];
 			isBouncing = true;
 		}
@@ -168,7 +169,7 @@ public class PlayerController : MonoBehaviour
 	{
 		if (switchAction.WasPressedThisFrame())
 		{
-			SetLightPlayerColor((int)ability.switchPlatform);
+			SetLightPlayerColor((int)colors.switchPlatform);
 			isPlatformsAEnabled = !isPlatformsAEnabled;
 
 			foreach (GameObject platform in platformsA)
@@ -186,6 +187,7 @@ public class PlayerController : MonoBehaviour
 	{
 		if (gravityAction.WasPressedThisFrame())
 		{
+			SetLightPlayerColor((int)colors.gravity);
 			isGravityFlipped = !isGravityFlipped;
 			if (isGravityFlipped)
 			{
@@ -214,6 +216,6 @@ public class PlayerController : MonoBehaviour
 
 	void SetLightPlayerColor(int index)
 	{
-		lightPlayer.color = abilities[index].color;
+		lightPlayer.color = abilitiesColors[index];
 	}
 }
