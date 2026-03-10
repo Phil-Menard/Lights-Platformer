@@ -20,8 +20,6 @@ public class PlayerController : MonoBehaviour
 	private Rigidbody2D rb;
 	private InputAction moveAction;
 	private InputAction jumpAction;
-	private InputAction abilityAction;
-	private InputAction pulseAction;
 	private InputAction bounceAction;
 	private InputAction switchAction;
 	private Vector2 direction;
@@ -33,18 +31,21 @@ public class PlayerController : MonoBehaviour
 	private float jumpDuration;
 	private bool isJumping = false;
 	private bool isGrounded = true;
-	private int indexAbilities;
-	[SerializeField] private int jumpCount;
+	private int jumpCount;
 	private int maxJump;
-	private bool canPulse;
-	private bool canBounce;
 	private bool isBouncing;
-	private bool canSwitch;
 	private bool isPlatformsAEnabled;
 	private enum physicsMaterials
 	{
 		noFriction,
 		bounce
+	}
+
+	private enum ability
+	{
+		doubleJump,
+		bounce,
+		switchPlatform
 	}
 
 
@@ -58,22 +59,15 @@ public class PlayerController : MonoBehaviour
 	{
 		moveAction = InputSystem.actions.FindAction("Move");
 		jumpAction = InputSystem.actions.FindAction("Jump");
-		abilityAction = InputSystem.actions.FindAction("Ability");
-		pulseAction = InputSystem.actions.FindAction("Pulse");
 		bounceAction = InputSystem.actions.FindAction("Bounce");
 		switchAction = InputSystem.actions.FindAction("Switch");
 
 		jumpDuration = jumpHoldDuration;
-		indexAbilities = 0;
 		jumpCount = 0;
-		maxJump = 1;
-		canPulse = false;
-		canBounce = false;
+		maxJump = 2;
 		isBouncing = false;
-		canSwitch = false;
 		isPlatformsAEnabled = true;
-		SetLightPlayerColor();
-		abilities[indexAbilities].Activate(this);
+		SetLightPlayerColor((int)ability.doubleJump);
 
 		platformsA = GameObject.FindGameObjectsWithTag("PlatformA");
 		platformsB = GameObject.FindGameObjectsWithTag("PlatformB");
@@ -96,9 +90,7 @@ public class PlayerController : MonoBehaviour
 		}
 
 		direction = moveAction.ReadValue<Vector2>();
-		ChangeAbility();
 		JumpInput();
-		PulseInput();
 		BounceInput();
 		SwitchInput();
 	}
@@ -116,6 +108,7 @@ public class PlayerController : MonoBehaviour
 		if (jumpAction.WasPressedThisFrame() && (isGrounded || jumpCount < maxJump))
 		{
 			isJumping = true;
+			SetLightPlayerColor((int)ability.doubleJump);
 			jumpCount++;
 		}
 
@@ -136,19 +129,11 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	void PulseInput()
-	{
-		if (pulseAction.WasPressedThisFrame() && canPulse)
-		{
-			int currentIndexAbility = indexAbilities;
-			Pulse(currentIndexAbility);
-		}
-	}
-
 	void BounceInput()
 	{
-		if (bounceAction.IsPressed() && canBounce)
+		if (bounceAction.IsPressed())
 		{
+			SetLightPlayerColor((int)ability.bounce);
 			rb.sharedMaterial = pMaterials[(int)physicsMaterials.bounce];
 			isBouncing = true;
 		}
@@ -161,8 +146,9 @@ public class PlayerController : MonoBehaviour
 
 	void SwitchInput()
 	{
-		if (switchAction.WasPressedThisFrame() && canSwitch)
+		if (switchAction.WasPressedThisFrame())
 		{
+			SetLightPlayerColor((int)ability.switchPlatform);
 			isPlatformsAEnabled = !isPlatformsAEnabled;
 
 			foreach (GameObject platform in platformsA)
@@ -176,17 +162,6 @@ public class PlayerController : MonoBehaviour
 		}
 	}
 
-	void ChangeAbility()
-	{
-		if (abilityAction.WasPressedThisFrame())
-		{
-			abilities[indexAbilities].Desactivate(this);
-			indexAbilities = (indexAbilities + 1) % abilities.Count;
-			SetLightPlayerColor();
-			abilities[indexAbilities].Activate(this);
-		}
-	}
-
 	void OnDrawGizmos()
 	{
 		if (groundCheck == null)
@@ -196,89 +171,8 @@ public class PlayerController : MonoBehaviour
 		Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
 	}
 
-	void SetLightPlayerColor()
+	void SetLightPlayerColor(int index)
 	{
-		lightPlayer.color = abilities[indexAbilities].color;
-	}
-
-	public void EnableDoubleJump()
-	{
-		maxJump = 2;
-	}
-
-	public void DisableDoubleJump()
-	{
-		maxJump = 1;
-	}
-
-	public void EnableBounce()
-	{
-		canBounce = true;
-	}
-
-	public void DisableBounce()
-	{
-		canBounce = false;
-	}
-
-	public void EnablePulse()
-	{
-		canPulse = true;
-	}
-
-	public void DisablePulse()
-	{
-		canPulse = false;
-	}
-
-	public void EnableSwitch()
-	{
-		canSwitch = true;
-	}
-
-	public void DisableSwitch()
-	{
-		canSwitch = false;
-	}
-
-	public void Pulse(int currentIndexAbility)
-	{
-		canPulse = false;
-		StartCoroutine(PulseLight(currentIndexAbility));
-	}
-
-	IEnumerator PulseLight(int currentIndexAbility)
-	{
-		float startRadius = lightPlayer.pointLightOuterRadius;
-		float targetRadius = 18f;
-
-		//Increase
-		float durationUp = 0.5f;
-		float time = 0f;
-		while (time < durationUp)
-		{
-			lightPlayer.pointLightOuterRadius = Mathf.SmoothStep(startRadius, targetRadius, time / durationUp);
-			time += Time.deltaTime;
-			yield return null;
-		}
-		lightPlayer.pointLightOuterRadius = targetRadius;
-
-		//Hold
-		yield return new WaitForSeconds(1.5f);
-
-		//Decrease
-		float durationDown = 0.5f;
-		time = 0f;
-		while (time < durationDown)
-		{
-			lightPlayer.pointLightOuterRadius = Mathf.SmoothStep(targetRadius, startRadius, time / durationDown);
-			time += Time.deltaTime;
-			yield return null;
-		}
-		lightPlayer.pointLightOuterRadius = startRadius;
-
-		yield return new WaitForSeconds(1f);
-		if (indexAbilities == currentIndexAbility)
-			canPulse = true;
+		lightPlayer.color = abilities[index].color;
 	}
 }
