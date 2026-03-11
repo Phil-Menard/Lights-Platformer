@@ -80,24 +80,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c6efbaf7896c2844876429a11be802a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  inputActions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   groundCheck: {fileID: 5357769339478340473}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  groundCheckSizeY: {x: 1, y: 0.1}
-  groundCheckSizeX: {x: 0.1, y: 1}
-  abilities:
-  - {fileID: 11400000, guid: a315911bfde4d5140b72f8de1a7e7e9c, type: 2}
-  - {fileID: 11400000, guid: f9b648058bf1c3947a9281129217b613, type: 2}
-  - {fileID: 11400000, guid: baf2ae36c715bb04d9aa179129aee093, type: 2}
+  groundCheckSizeY: {x: 0.8, y: 0.1}
+  groundCheckSizeX: {x: 0.1, y: 0.8}
+  abilitiesColors:
+  - serializedVersion: 2
+    rgba: 4286169881
+  - serializedVersion: 2
+    rgba: 4281281188
+  - serializedVersion: 2
+    rgba: 4289279688
+  - serializedVersion: 2
+    rgba: 4281780392
   lightPlayer: {fileID: 2897646132227431772}
-  pMaterials:
-  - {fileID: 6200000, guid: f9dae2a0e0e13ec4cb5708714409f485, type: 2}
-  - {fileID: 6200000, guid: efe67fead2c980a47bdca3733dd533b4, type: 2}
   platformsA: []
   platformsB: []
-  isGrounded: 1
+  bouncingSpeed: 12
+  speed: 7
 --- !u!212 &4985103609234742829
 SpriteRenderer:
   serializedVersion: 2

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
@@ -9,8 +10,7 @@ public class PlayerController : MonoBehaviour
 {
 	[SerializeField] private Transform groundCheck;
 	[SerializeField] private LayerMask groundLayer;
-	[SerializeField] private Vector2 groundCheckSizeY = new Vector2(1, 0.1f);
-	[SerializeField] private Vector2 groundCheckSizeX = new Vector2(0.1f, 1);
+	[SerializeField] private Vector2 groundCheckSize = new Vector2(1, 0.1f);
 	[SerializeField] private List<Color32> abilitiesColors;
 	[SerializeField] private Light2D lightPlayer;
 	[SerializeField] private GameObject[] platformsA;
@@ -22,12 +22,13 @@ public class PlayerController : MonoBehaviour
 	private PlayerInputs inputs;
 
 
-	private float jumpForce = 5.0f;
 	[SerializeField] private float speed = 5.0f;
+	private float jumpForce = 5.0f;
 	private float jumpHoldDuration = .5f;
 	private float jumpDuration;
 	private bool isJumping = false;
 	private bool isGrounded = true;
+	private bool isOnWall = false;
 	private int jumpCount;
 	private int maxJump;
 	private bool isPlatformsAEnabled;
@@ -70,9 +71,15 @@ public class PlayerController : MonoBehaviour
 		isGravityFlipped = false;
 		isBouncing = false;
 		propulse = false;
-		
-		SetLightPlayerColor((int)colors.doubleJump);
 
+		SetLightPlayerColor((int)colors.doubleJump);
+		platformsA = GameObject.FindGameObjectsWithTag("PlatformA");
+		platformsB = GameObject.FindGameObjectsWithTag("PlatformB");
+
+		foreach (GameObject platform in platformsA)
+		{
+			platform.SetActive(true);
+		}
 		foreach (GameObject platform in platformsB)
 		{
 			platform.SetActive(false);
@@ -83,9 +90,8 @@ public class PlayerController : MonoBehaviour
 	void Update()
 	{
 		if (!isGravityFlipped)
-			isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSizeY, 0f, groundLayer);
-		else
-			isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSizeX, 0f, groundLayer);
+			isGrounded = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
+
 		if (isGrounded && !isJumping)
 		{
 			jumpCount = 0;
@@ -94,6 +100,12 @@ public class PlayerController : MonoBehaviour
 		}
 
 		direction = inputs.Player.Move.ReadValue<Vector2>();
+
+		if (rb.linearVelocityY < 0 && !isGrounded)
+			rb.gravityScale = 2;
+		else
+			rb.gravityScale = 1;
+
 		JumpInput();
 		BounceInput();
 		SwitchInput();
@@ -119,7 +131,10 @@ public class PlayerController : MonoBehaviour
 
 		if (propulse)
 		{
-			rb.linearVelocity = new Vector2(rb.linearVelocityX, bouncingSpeed);
+			if (!isGravityFlipped)
+				rb.linearVelocity = new Vector2(rb.linearVelocityX, bouncingSpeed);
+			else
+				rb.linearVelocity = new Vector2(-bouncingSpeed, rb.linearVelocityY);
 			propulse = false;
 		}
 	}
@@ -201,10 +216,7 @@ public class PlayerController : MonoBehaviour
 			return;
 
 		Gizmos.color = Color.green;
-		Gizmos.DrawWireCube(groundCheck.position, groundCheckSizeY);
-
-		Gizmos.color = Color.blue;
-		Gizmos.DrawWireCube(groundCheck.position, groundCheckSizeX);
+		Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
 	}
 
 	void SetLightPlayerColor(int index)
