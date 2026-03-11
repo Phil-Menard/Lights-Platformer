@@ -7,7 +7,6 @@ using UnityEngine.Rendering.Universal;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
-	[SerializeField] private InputActionAsset inputActions;
 	[SerializeField] private Transform groundCheck;
 	[SerializeField] private LayerMask groundLayer;
 	[SerializeField] private Vector2 groundCheckSizeY = new Vector2(1, 0.1f);
@@ -19,12 +18,8 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private float bouncingSpeed = 500.0f;
 
 	private Rigidbody2D rb;
-	private InputAction moveAction;
-	private InputAction jumpAction;
-	private InputAction bounceAction;
-	private InputAction switchAction;
-	private InputAction gravityAction;
 	private Vector2 direction;
+	private PlayerInputs inputs;
 
 
 	private float jumpForce = 5.0f;
@@ -52,17 +47,22 @@ public class PlayerController : MonoBehaviour
 	void Awake()
 	{
 		rb = GetComponent<Rigidbody2D>();
+		inputs = new PlayerInputs();
+	}
+
+	void OnEnable()
+	{
+		inputs.Enable();
+	}
+
+	void OnDisable()
+	{
+		inputs.Disable();
 	}
 
 	// Start is called once before the first execution of Update after the MonoBehaviour is created
 	void Start()
 	{
-		moveAction = InputSystem.actions.FindAction("Move");
-		jumpAction = InputSystem.actions.FindAction("Jump");
-		bounceAction = InputSystem.actions.FindAction("Bounce");
-		switchAction = InputSystem.actions.FindAction("Switch");
-		gravityAction = InputSystem.actions.FindAction("Gravity");
-
 		jumpDuration = jumpHoldDuration;
 		jumpCount = 0;
 		maxJump = 1;
@@ -73,8 +73,6 @@ public class PlayerController : MonoBehaviour
 		
 		SetLightPlayerColor((int)colors.doubleJump);
 
-		platformsA = GameObject.FindGameObjectsWithTag("PlatformA");
-		platformsB = GameObject.FindGameObjectsWithTag("PlatformB");
 		foreach (GameObject platform in platformsB)
 		{
 			platform.SetActive(false);
@@ -95,7 +93,7 @@ public class PlayerController : MonoBehaviour
 				propulse = true;
 		}
 
-		direction = moveAction.ReadValue<Vector2>();
+		direction = inputs.Player.Move.ReadValue<Vector2>();
 		JumpInput();
 		BounceInput();
 		SwitchInput();
@@ -128,14 +126,14 @@ public class PlayerController : MonoBehaviour
 
 	void JumpInput()
 	{
-		if (jumpAction.WasPressedThisFrame() && (isGrounded || jumpCount < maxJump))
+		if (inputs.Player.Jump.WasPressedThisFrame() && (isGrounded || jumpCount < maxJump))
 		{
 			isJumping = true;
 			SetLightPlayerColor((int)colors.doubleJump);
 			jumpCount++;
 		}
 
-		if (jumpAction.WasReleasedThisFrame() || jumpHoldDuration <= 0)
+		if (inputs.Player.Jump.WasReleasedThisFrame() || jumpHoldDuration <= 0)
 		{
 			isJumping = false;
 			jumpHoldDuration = jumpDuration;
@@ -147,23 +145,22 @@ public class PlayerController : MonoBehaviour
 
 	void BounceInput()
 	{
-		if (bounceAction.WasPressedThisFrame() && !isGrounded)
+		if (inputs.Player.Bounce.WasPressedThisFrame() && !isGrounded)
 		{
 			SetLightPlayerColor((int)colors.bounce);
 			isBouncing = true;
 		}
 		
-		if (bounceAction.WasReleasedThisFrame())
+		if (inputs.Player.Bounce.WasReleasedThisFrame())
 		{
-			if (bounceAction.WasReleasedThisFrame())
-				SetLightPlayerColor((int)colors.doubleJump);
+			SetLightPlayerColor((int)colors.doubleJump);
 			isBouncing = false;
 		}
 	}
 
 	void SwitchInput()
 	{
-		if (switchAction.WasPressedThisFrame())
+		if (inputs.Player.Switch.WasPressedThisFrame())
 		{
 			SetLightPlayerColor((int)colors.switchPlatform);
 			isPlatformsAEnabled = !isPlatformsAEnabled;
@@ -181,7 +178,7 @@ public class PlayerController : MonoBehaviour
 
 	void GravityInput()
 	{
-		if (gravityAction.WasPressedThisFrame())
+		if (inputs.Player.Gravity.WasPressedThisFrame())
 		{
 			SetLightPlayerColor((int)colors.gravity);
 			isGravityFlipped = !isGravityFlipped;

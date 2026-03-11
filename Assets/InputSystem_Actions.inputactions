@@ -370,11 +370,33 @@
                 },
                 {
                     "name": "",
+                    "id": "8ec64934-c2a7-4b2b-b58f-36be33d9f263",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Switch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "f5e0a93a-950f-4ef6-ad1f-4b8c7baa9ca7",
                     "path": "<Keyboard>/f",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
+                    "action": "Gravity",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2678e9de-4cc9-4184-902d-0b06005d8875",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
                     "action": "Gravity",
                     "isComposite": false,
                     "isPartOfComposite": false
