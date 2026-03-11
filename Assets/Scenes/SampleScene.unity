@@ -220,7 +220,7 @@ Transform:
   m_GameObject: {fileID: 6131441}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -47.7, y: 37.9, z: -12.2}
+  m_LocalPosition: {x: -47.7, y: -11.9, z: -12.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -316,37 +316,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3d171ee9a29993042a422c9f48c91c91, type: 3}
---- !u!1 &80399788
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 80399789}
-  m_Layer: 0
-  m_Name: WallCheck'
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &80399789
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 80399788}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 612807805}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &124809042 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2126543641200711115, guid: 3d171ee9a29993042a422c9f48c91c91, type: 3}
@@ -865,7 +834,7 @@ Transform:
   m_GameObject: {fileID: 579707925}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -47.7, y: 37.9, z: -12.2}
+  m_LocalPosition: {x: -47.7, y: -11.9, z: -12.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3609,7 +3578,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2600267785143248930, guid: 7ba172f19e4ecef44981d947b54140cf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 37.9
+      value: -11.9
       objectReference: {fileID: 0}
     - target: {fileID: 2600267785143248930, guid: 7ba172f19e4ecef44981d947b54140cf, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3654,7 +3623,7 @@ PrefabInstance:
     - target: {fileID: 6316640147700090513, guid: 7ba172f19e4ecef44981d947b54140cf, type: 3}
       propertyPath: wallCheck
       value: 
-      objectReference: {fileID: 80399789}
+      objectReference: {fileID: 0}
     - target: {fileID: 6316640147700090513, guid: 7ba172f19e4ecef44981d947b54140cf, type: 3}
       propertyPath: wallJumpForce
       value: 10
@@ -3685,10 +3654,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 2600267785143248930, guid: 7ba172f19e4ecef44981d947b54140cf, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 80399789}
+    m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7ba172f19e4ecef44981d947b54140cf, type: 3}
 --- !u!1660057539 &9223372036854775807
